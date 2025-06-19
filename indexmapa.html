@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>ConecSol - Mapa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS do Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f7;
+    }
+
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <!-- Script do Leaflet -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    // Centraliza o mapa numa visão geral da região central de BH
+    const map = L.map('map').setView([-19.925, -43.95], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+    }).addTo(map);
+
+    const iconProdutor = L.icon({
+      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
+
+    const iconConsumidor = L.icon({
+      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
+
+    const iconUser = L.icon({
+      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
+
+    // Produtores (amarelo) espalhados pelos bairros
+    const produtores = [
+      { lat: -19.9115, lng: -43.9675, nome: "Maria - Produtora", energia: "12 kWh" }, // Carlos Prates
+      { lat: -19.9315, lng: -43.9350, nome: "João - Produtor", energia: "20 kWh" },   // Lourdes
+      { lat: -19.9355, lng: -43.9385, nome: "Paulo - Produtor", energia: "15 kWh" },  // Savassi
+      { lat: -19.9310, lng: -43.9530, nome: "Ana - Produtora", energia: "18 kWh" }    // Gutierrez
+    ];
+
+    // Consumidores (verde) espalhados pelos bairros
+    const consumidores = [
+      { lat: -19.9120, lng: -43.9680, nome: "Carlos - Consumidor" },  // Carlos Prates
+      { lat: -19.9305, lng: -43.9365, nome: "Beatriz - Consumidora" },// Lourdes
+      { lat: -19.9360, lng: -43.9365, nome: "Lucas - Consumidor" },   // Savassi
+      { lat: -19.9330, lng: -43.9550, nome: "Fernanda - Consumidora" } // Gutierrez
+    ];
+
+    produtores.forEach(p => {
+      L.marker([p.lat, p.lng], { icon: iconProdutor })
+        .addTo(map)
+        .bindPopup(`<b>${p.nome}</b><br>Disponível: ${p.energia}`);
+    });
+
+    consumidores.forEach(c => {
+      L.marker([c.lat, c.lng], { icon: iconConsumidor })
+        .addTo(map)
+        .bindPopup(`<b>${c.nome}</b><br>Buscando energia`);
+    });
+
+    // Localização em tempo real do usuário
+    map.locate({ setView: true, maxZoom: 16, watch: true });
+
+    function onLocationFound(e) {
+      const radius = e.accuracy;
+
+      L.marker(e.latlng, { icon: iconUser })
+        .addTo(map)
+        .bindPopup("Você está aqui").openPopup();
+
+      L.circle(e.latlng, radius).addTo(map);
+    }
+
+    map.on('locationfound', onLocationFound);
+
+    function onLocationError(e) {
+      alert("Não foi possível acessar sua localização: " + e.message);
+    }
+
+    map.on('locationerror', onLocationError);
+  </script>
+</body>
+</html>
+
+
+
+
